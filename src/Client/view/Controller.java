@@ -21,7 +21,14 @@ import javafx.scene.input.MouseEvent;
 public class Controller {
     // Reference to the main application
     public StartClient StartClientMain;
+
     private ObservableList<HairDresserTermin> Termins;
+
+    public void setReservations(ObservableList<HairDresserTermin> reservations) {
+        Reservations = reservations;
+    }
+
+    private ObservableList<HairDresserTermin> Reservations;
     @FXML
     private TableView<HairDresserTermin> TerminTable1;
     @FXML
@@ -50,10 +57,12 @@ public class Controller {
 
     @FXML
     private void initialize() {
+       // Termins.addListener();
         load_columns();
         add_columns_listeners();
+
     }
-    private void load_columns(){
+    public void load_columns(){
         init_column(Column1);
         init_column(Column2);
         init_column(Column3);
@@ -78,11 +87,9 @@ public class Controller {
         TerminTable5.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
     }
-    private void init_column(TableColumn<HairDresserTermin, LocalDateTime> col) {
-        // Initialize the person table with one column.
+    public void init_column(TableColumn<HairDresserTermin, LocalDateTime> col) {
          col.setCellValueFactory(cellData ->
                 cellData.getValue().TerminTimeProperty());
-        // Custom rendering of the table cell.
          col.setCellFactory(column -> {
                 return new TableCell<HairDresserTermin, LocalDateTime>() {
                 @Override
@@ -99,7 +106,6 @@ public class Controller {
                         if(StartClientMain.isReservated(item)) {
                             setStyle("-fx-background-color: red");
                         }
-
                     }
                 }
 
@@ -108,32 +114,41 @@ public class Controller {
     }
 
     /**
-    * TO DO alert ze juz jest zarezerwowane
-    */
+     * TO DO alert ze juz jest zarezerwowane
+     */
    private void SendReservationRequest(HairDresserTermin termin){
        StartClientMain.addReservation(termin.TerminTime());
        load_columns();
 
    }
-
    @FXML
    private void handleCancelReservation() {
         StartClientMain.cancelReservation();
         load_columns();
    }
-
-    /**
-     * Is called by the main application to give a reference back to itself.
-     *
-     * @param StartClientMain
-     */
+    public ObservableList<HairDresserTermin> getDay(int DayOfWeek, ObservableList<HairDresserTermin> TerminsToSplit) {
+        if(TerminsToSplit == null) return null;
+       if(TerminsToSplit.size()==0) return null;
+        ObservableList<HairDresserTermin> TerminsOfDay = FXCollections.observableArrayList();
+        for (int offset = DayOfWeek * 8, iter = 0; iter < 8; iter++) {
+              TerminsOfDay.add(TerminsToSplit.get(offset+iter));
+        }
+        return TerminsOfDay;
+    }
     public void setMainApp(StartClient StartClientMain) {
         this.StartClientMain = StartClientMain;
-        TerminTable1.setItems(StartClientMain.getDay(0));
-        TerminTable2.setItems(StartClientMain.getDay(1));
-        TerminTable3.setItems(StartClientMain.getDay(2));
-        TerminTable4.setItems(StartClientMain.getDay(3));
-        TerminTable5.setItems(StartClientMain.getDay(4));
+        setTables();
     }
+    public void setTables(){
+        Termins = StartClientMain.getTermins();
+        TerminTable1.setItems(getDay(0, Termins));
+        TerminTable2.setItems(getDay(1, Termins));
+        TerminTable3.setItems(getDay(2, Termins));
+         TerminTable4.setItems(getDay(3, Termins));
+       TerminTable5.setItems(getDay(4, Termins));
+        load_columns();
+    }
+
+
 
 }

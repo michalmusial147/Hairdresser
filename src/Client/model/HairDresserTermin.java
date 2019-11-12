@@ -1,5 +1,6 @@
 package Client.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -7,9 +8,10 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-public class HairDresserTermin {
-    private final ObjectProperty<LocalDateTime> TerminTime;
 
+
+public class HairDresserTermin implements Serializable {
+    private transient final ObjectProperty<LocalDateTime> TerminTime;
     public HairDresserTermin() {
         this.TerminTime = null;
     }
