@@ -11,8 +11,8 @@ import java.util.List;
 import Client.model.HairDresserTerminString;
 import Client.model.HairDresserTermin;
 import Client.util.DateUtil;
-import Server.StartServer;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
+
 
 import javafx.collections.*;
 import static java.lang.System.out;
@@ -21,18 +21,20 @@ public class ClientNetThread implements Runnable{
 
     private Socket socket = new Socket();
     private String Client_name;
-    private StartClient clientmain;
     private ObjectInputStream Object_input_stream;
+    private ArrayList<HairDresserTermin> Reservations;
+    private operationType OperationType;
 
-    public ClientNetThread(String client_name, StartClient clientmain) throws IOException {
+    public ClientNetThread(String client_name, ArrayList<HairDresserTermin> Reservations,OperationType operationType) throws IOException {
         this.Client_name = client_name;
-        this.clientmain = clientmain;
+        this.Reservations = Reservations;
+        this.OperationType = operationType;
     }
 
-    enum OperationType {
+    enum operationType {
         REGISTER,CANCEL,GETTERMINS,LISTEN
     }
-    OperationType type;
+
 
     @Override
         public void run(){
@@ -40,6 +42,7 @@ public class ClientNetThread implements Runnable{
                 socket.connect(new InetSocketAddress("localhost", 15456), 1000);
                 OutputStream out = socket.getOutputStream();
                 InputStream in = socket.getInputStream();
+                if(this.OperationType ==  operationType.GETTERMINS)
                 out.write((Client_name+"\n").getBytes());
                 out.write("get_termins\n".getBytes());
 
@@ -51,12 +54,9 @@ public class ClientNetThread implements Runnable{
                     for ( HairDresserTerminString termin : bufer ) {
                         resultofwrap.add(new HairDresserTermin(DateUtil.parse(termin.TerminTimeString())));
                     }
-                     clientmain.setReservations(resultofwrap);
+                    Reservations = resultofwrap;
                 }
-                catch(IOException e){
-                    e.printStackTrace();
-                }
-                 catch(ClassNotFoundException e){
+                catch(IOException | ClassNotFoundException e ){
                     e.printStackTrace();
                 }
                 out.close();

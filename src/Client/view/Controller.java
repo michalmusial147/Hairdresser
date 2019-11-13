@@ -11,13 +11,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.SelectionModel;
 import Client.util.DateUtil;
 import javafx.scene.control.TableCell;
-import javafx.scene.input.MouseEvent;
+
 public class Controller {
     // Reference to the main application
     public StartClient StartClientMain;
@@ -58,11 +56,11 @@ public class Controller {
     @FXML
     private void initialize() {
        // Termins.addListener();
-        load_columns();
+        init_columns();
         add_columns_listeners();
 
     }
-    public void load_columns(){
+    public void init_columns(){
         init_column(Column1);
         init_column(Column2);
         init_column(Column3);
@@ -118,13 +116,13 @@ public class Controller {
      */
    private void SendReservationRequest(HairDresserTermin termin){
        StartClientMain.addReservation(termin.TerminTime());
-       load_columns();
+       init_columns();
 
    }
    @FXML
    private void handleCancelReservation() {
         StartClientMain.cancelReservation();
-        load_columns();
+        init_columns();
    }
     public ObservableList<HairDresserTermin> getDay(int DayOfWeek, ObservableList<HairDresserTermin> TerminsToSplit) {
         if(TerminsToSplit == null) return null;
@@ -144,9 +142,9 @@ public class Controller {
         TerminTable1.setItems(getDay(0, Termins));
         TerminTable2.setItems(getDay(1, Termins));
         TerminTable3.setItems(getDay(2, Termins));
-         TerminTable4.setItems(getDay(3, Termins));
-       TerminTable5.setItems(getDay(4, Termins));
-        load_columns();
+        TerminTable4.setItems(getDay(3, Termins));
+        TerminTable5.setItems(getDay(4, Termins));
+        init_columns();
     }
 
 

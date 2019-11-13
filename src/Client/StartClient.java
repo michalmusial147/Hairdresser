@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 import javafx.scene.layout.AnchorPane;
 import javafx.collections.*;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -32,7 +31,7 @@ public class StartClient extends Application {
     public void setReservations(ArrayList<HairDresserTermin> reservations) {
         Reservations.addAll(reservations);
         if(controller!=null){
-            controller.load_columns();
+            controller.init_columns();
         }
     }
 
@@ -77,7 +76,7 @@ public class StartClient extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException,InterruptedException {
-        ClientNetThread = new Thread(new ClientNetThread(ClientName,this));
+        ClientNetThread = new Thread(new ClientNetThread(ClientName,Reservations));
         ClientNetThread.start();
         ClientNetThread.join();
         this.primaryStage = primaryStage;
@@ -89,7 +88,9 @@ public class StartClient extends Application {
     public void addReservation(LocalDateTime ReservationTime) {
         if (ReservatedTermin != null) {
             return;
+            Thread =  new Thread(new ClientNetThread(ClientName,Reservations));
         }
+
         if (isReservated(ReservationTime)) {
             System.out.println("Reservated before: " + DateUtil.format(ReservationTime));
         } else {
