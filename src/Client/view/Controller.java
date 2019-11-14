@@ -120,7 +120,7 @@ public class Controller {
        try {
            StartClientMain.addReservation(termin.TerminTime());
        }
-       catch( IOException e){e.printStackTrace();
+       catch( IOException | InterruptedException e){e.printStackTrace();
        }
        init_columns();
 

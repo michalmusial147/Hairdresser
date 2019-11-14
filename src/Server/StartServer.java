@@ -11,6 +11,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.layout.AnchorPane;
 import javafx.collections.*;
+import util.WeekTerminsGenerator;
+
 import java.util.ArrayList;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -20,8 +22,8 @@ public class StartServer extends Application {
 
     private AnchorPane ClientLayout;
     private Stage primaryStage;
-    private ObservableList<HairDresserTermin> Termins = generateTermins();
-
+    private ObservableList<HairDresserTermin> Termins;
+    private  Controller controller;
 
     private ArrayList<HairDresserTermin> Reservations = new ArrayList<>();
     //private HairDresserTermin ReservatedTermin = null;
@@ -56,8 +58,9 @@ public class StartServer extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        Termins = new WeekTerminsGenerator().generateTermins();
         try{
-            Server = new Thread(new ServerNet(this.Reservations));
+            Server = new Thread(new ServerNet(this.Reservations, this.controller));
             Server.start();
         }
         catch(Exception e){
@@ -97,7 +100,7 @@ public class StartServer extends Application {
             primaryStage.setScene(scene);
 
             // Give the controller access to the main app.
-            Controller controller = loader.getController();
+            this.controller = loader.getController();
             controller.setMainApp(this);
 
             primaryStage.show();

@@ -1,5 +1,6 @@
 package Server;
 import Client.model.HairDresserTermin;
+import Server.view.Controller;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,9 +11,9 @@ public class ServerNet implements Runnable {
 
     public static int PORT = 15456;
     private ServerSocket serverSocket = new ServerSocket();
-    private StartServer servermain;
     private ArrayList<HairDresserTermin> Reservations;
-    public ServerNet(ArrayList<HairDresserTermin> reservations) throws Exception {
+    private Controller controller;
+    public ServerNet(ArrayList<HairDresserTermin> reservations, Controller controller) throws Exception {
         serverSocket = new ServerSocket(PORT);
         this.Reservations = reservations;
     }
@@ -22,7 +23,8 @@ public class ServerNet implements Runnable {
         try {
             while (true) {
                 Socket socket = serverSocket.accept();
-                new Thread(new HandleRequestThread(socket, Reservations)).start();
+
+                new Thread(new HandleRequestThread(socket, Reservations, controller)).start();
             }
         }
         catch (IOException e) {

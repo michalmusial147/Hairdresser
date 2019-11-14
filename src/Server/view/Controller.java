@@ -47,9 +47,9 @@ public class Controller {
 
     @FXML
     private void initialize() {
-        load_columns();
+        init_columns();
     }
-    private void load_columns(){
+    public void init_columns(){
         init_column(Column1);
         init_column(Column2);
         init_column(Column3);
@@ -74,7 +74,7 @@ public class Controller {
         TerminTable5.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
     }
-    private void init_column(TableColumn<HairDresserTermin, LocalDateTime> col) {
+    public void init_column(TableColumn<HairDresserTermin, LocalDateTime> col) {
         // Initialize the person table with one column.
         col.setCellValueFactory(cellData ->
                 cellData.getValue().TerminTimeProperty());
@@ -107,13 +107,13 @@ public class Controller {
      * */
     private void SendReservationRequest(HairDresserTermin termin){
         StartServerMain.addReservation(termin.TerminTime());
-        load_columns();
+        init_columns();
     }
 
     @FXML
     private void handleCancelReservation() {
         StartServerMain.cancelReservation();
-        load_columns();
+        init_columns();
     }
     /**
      * Is called by the main application to give a reference back to itself.

@@ -3,6 +3,8 @@ package Client;
 import Client.model.HairDresserTermin;
 import util.DateUtil;
 import Client.view.Controller;
+import util.Operation;
+import util.WeekTerminsGenerator;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -10,12 +12,13 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.layout.AnchorPane;
 import javafx.collections.*;
-import util.Operation;
+
 
 import java.util.ArrayList;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.List;
+
 
 public class StartClient extends Application {
 
@@ -23,7 +26,7 @@ public class StartClient extends Application {
     private String ClientName = "Michu";
     private AnchorPane ClientLayout;
     private Stage primaryStage;
-    private ObservableList<HairDresserTermin> Termins = generateTermins();
+    private ObservableList<HairDresserTermin> Termins;
     private ArrayList<HairDresserTermin> Reservations = new ArrayList<>();
     private HairDresserTermin ReservatedTermin = null;
     private Thread ClientNetThread ;
@@ -39,30 +42,7 @@ public class StartClient extends Application {
     public StartClient()  {
     }
 
-    public ObservableList<HairDresserTermin> generateTermins(){
-        ObservableList<HairDresserTermin> TerminsBuffer = FXCollections.observableArrayList();
-        LocalDateTime Time = LocalDateTime.now();
-        Time = Time.withHour(10);
-        Time = Time.withSecond(0);
-        Time = Time.withMinute(0);
-        while(Time.getDayOfWeek() == DayOfWeek.SUNDAY || Time.getDayOfWeek() == DayOfWeek.SATURDAY) {
-            Time = Time.plusDays(1);
-        }
-        for (int day = 0; day < 5; day++) {
 
-            for (int i = 10; i < 18; i++) {
-                Time = Time.withHour(i);
-                TerminsBuffer.add(new HairDresserTermin(Time));
-            }
-            if (Time.getDayOfWeek() == DayOfWeek.FRIDAY) {
-                Time = Time.plusDays(3);
-            } else {
-                Time = Time.plusDays(1);
-            }
-
-        }
-        return TerminsBuffer;
-    }
     public void setTermins(ObservableList<HairDresserTermin> Termins) {
        this.Termins = Termins;
         if(controller!=null) {
@@ -83,19 +63,22 @@ public class StartClient extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("HairDresserClient");
         initLayout();
-        setTermins(generateTermins());
+        setTermins(new WeekTerminsGenerator().generateTermins());
     }
 
-    public void addReservation(LocalDateTime ReservationTime) throws IOException {
-        if (ReservatedTermin == null) {
+    public void addReservation(LocalDateTime ReservationTime) throws IOException, InterruptedException {
+        if (ReservatedTermin != null) {
             return;}
         if (isReservated(ReservationTime)) {
             System.out.println("Reservated before: " + DateUtil.format(ReservationTime));
             return;
         }
 
-        Thread t =  new Thread(new ClientNetThread(ClientName, new HairDresserTermin(ReservationTime), Operation.REGISTER));
+        Thread t =  new Thread(new ClientNetThread(ClientName,
+                new HairDresserTermin(ReservationTime), Operation.REGISTER));
         t.start();
+        t.join();
+
        // try {
            // t.join();
       //  } catch(InterruptedException e ){e.printStackTrace();

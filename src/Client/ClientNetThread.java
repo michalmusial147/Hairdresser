@@ -27,6 +27,8 @@ public class ClientNetThread implements Runnable {
     private HairDresserTermin ReservationTime;
 
 
+
+
     private boolean registerOK;
 
     public ClientNetThread(String client_name, ArrayList<HairDresserTermin> Reservations, Operation operationType) throws IOException {
@@ -60,7 +62,7 @@ public class ClientNetThread implements Runnable {
             GetTermins(in);
         }
         else if(this.operationType == operationType.REGISTER) {
-            setRegisterOK(RegisterTermin());
+            setRegisterOK(RegisterTermin(out));
         }
 
         try{
@@ -91,20 +93,20 @@ public class ClientNetThread implements Runnable {
     }
 
 
-    private boolean RegisterTermin(){
-        OutputStream out=null;
-        boolean success = false;
+    private boolean RegisterTermin(OutputStream out){
         try{
-            out = socket.getOutputStream();
             out.write(DateUtil.format(getReservationTime().TerminTime()).getBytes());
         }
         catch(IOException e){
             e.printStackTrace();
+            return false;
         }
-        return success;
+        return true;
     }
 
-
+    public boolean isRegisterOK() {
+        return registerOK;
+    }
 
     public void setRegisterOK(boolean registerOK) {
         this.registerOK = registerOK;
