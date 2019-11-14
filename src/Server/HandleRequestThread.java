@@ -54,7 +54,13 @@ public class HandleRequestThread implements Runnable {
             }
         }
         if(request.equals(Operation.REGISTER.toString())) {
-
+            String reservation_time;
+           try{
+               BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+           }
+           catch(IOException e){
+               e.printStackTrace();
+           }
         }
         System.out.println("Koniec " + user + " " + request);
     }

@@ -19,6 +19,11 @@ public class ClientNetThread implements Runnable {
 
     private ArrayList<HairDresserTermin> Reservations;
     private Operation operationType;
+
+    public HairDresserTermin getReservationTime() {
+        return ReservationTime;
+    }
+
     private HairDresserTermin ReservationTime;
 
 
@@ -87,9 +92,15 @@ public class ClientNetThread implements Runnable {
 
 
     private boolean RegisterTermin(){
+        OutputStream out=null;
         boolean success = false;
-
-
+        try{
+            out = socket.getOutputStream();
+            out.write(DateUtil.format(getReservationTime().TerminTime()).getBytes());
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
         return success;
     }
 
