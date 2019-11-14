@@ -1,7 +1,7 @@
 package Client;
 
 import Client.model.HairDresserTermin;
-import Client.util.DateUtil;
+import util.DateUtil;
 import Client.view.Controller;
 import java.io.IOException;
 import javafx.application.Application;
@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.layout.AnchorPane;
 import javafx.collections.*;
+import util.Operation;
 
 import java.util.ArrayList;
 import java.time.DayOfWeek;
@@ -76,7 +77,7 @@ public class StartClient extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException,InterruptedException {
-        ClientNetThread = new Thread(new ClientNetThread(ClientName,Reservations));
+        ClientNetThread = new Thread(new ClientNetThread(ClientName,Reservations, Operation.GETTERMINS));
         ClientNetThread.start();
         ClientNetThread.join();
         this.primaryStage = primaryStage;
@@ -85,20 +86,26 @@ public class StartClient extends Application {
         setTermins(generateTermins());
     }
 
-    public void addReservation(LocalDateTime ReservationTime) {
-        if (ReservatedTermin != null) {
-            return;
-            Thread =  new Thread(new ClientNetThread(ClientName,Reservations));
-        }
-
+    public void addReservation(LocalDateTime ReservationTime) throws IOException {
+        if (ReservatedTermin == null) {
+            return;}
         if (isReservated(ReservationTime)) {
             System.out.println("Reservated before: " + DateUtil.format(ReservationTime));
-        } else {
-            this.ReservatedTermin = new HairDresserTermin(ReservationTime);
-
-            this.Reservations.add(new HairDresserTermin(ReservationTime));
-            System.out.println("Reservation: " + DateUtil.format(ReservationTime));
+            return;
         }
+
+        Thread t =  new Thread(new ClientNetThread(ClientName, new HairDresserTermin(ReservationTime), Operation.REGISTER));
+        t.start();
+       // try {
+           // t.join();
+      //  } catch(InterruptedException e ){e.printStackTrace();
+      //  }
+
+
+        this.ReservatedTermin = new HairDresserTermin(ReservationTime);
+        this.Reservations.add(new HairDresserTermin(ReservationTime));
+        System.out.println("Reservation: " + DateUtil.format(ReservationTime));
+
     }
 
     public void cancelReservation() {

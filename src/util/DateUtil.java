@@ -1,13 +1,11 @@
-package Client.util;
-
+package util;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
 /**
  * Helper functions for handling dates.
  *
- * @author Marco Jakob
+ *
  */
 public class DateUtil {
 

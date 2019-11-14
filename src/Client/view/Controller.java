@@ -10,10 +10,12 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import javafx.scene.control.SelectionMode;
-import Client.util.DateUtil;
+import util.DateUtil;
 import javafx.scene.control.TableCell;
 
 public class Controller {
@@ -115,7 +117,11 @@ public class Controller {
      * TO DO alert ze juz jest zarezerwowane
      */
    private void SendReservationRequest(HairDresserTermin termin){
-       StartClientMain.addReservation(termin.TerminTime());
+       try {
+           StartClientMain.addReservation(termin.TerminTime());
+       }
+       catch( IOException e){e.printStackTrace();
+       }
        init_columns();
 
    }

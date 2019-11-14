@@ -5,19 +5,15 @@
 package Server.view;
 import Server.StartServer;
 import Client.model.HairDresserTermin;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.SelectionModel;
-import Client.util.DateUtil;
+import util.DateUtil;
 import javafx.scene.control.TableCell;
-import javafx.scene.input.MouseEvent;
 
 public class Controller {
     // Reference to the main application

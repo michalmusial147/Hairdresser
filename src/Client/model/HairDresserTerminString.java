@@ -1,14 +1,9 @@
 package Client.model;
-import Client.model.HairDresserTermin;
-import Client.util.DateUtil;
+import util.DateUtil;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import java.time.format.DateTimeFormatter;
-
 import javafx.beans.property.StringProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 

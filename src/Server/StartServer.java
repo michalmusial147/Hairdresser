@@ -1,7 +1,7 @@
 package Server;
 
 import Client.model.HairDresserTermin;
-import Client.util.DateUtil;
+import util.DateUtil;
 import Server.view.Controller;
 
 import java.io.IOException;

@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import util.Operation;
 
 /**
  * Klasa reprezentuje watek serwera.
@@ -41,8 +42,7 @@ public class HandleRequestThread implements Runnable {
         }
         catch(IOException e){e.printStackTrace();}
         System.out.println("Host connected: " + user +" with req: " + request);
-        if(request.equals("get_termins")) {
-            try {
+        if(request.equals(Operation.GETTERMINS.toString())) {            try {
                 List<HairDresserTerminString> bufer = new ArrayList<>();
                 for ( HairDresserTermin termin : Reservations) {
                     bufer.add(new HairDresserTerminString(termin));
@@ -53,7 +53,7 @@ public class HandleRequestThread implements Runnable {
                 e.printStackTrace();
             }
         }
-        if(request.equals("get_termins")) {
+        if(request.equals(Operation.REGISTER.toString())) {
 
         }
         System.out.println("Koniec " + user + " " + request);

@@ -1,4 +1,4 @@
-package Client.util;
+package util;
 
 import Client.model.HairDresserTermin;
 import Client.model.HairDresserTerminString;
