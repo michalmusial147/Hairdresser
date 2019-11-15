@@ -20,12 +20,9 @@ import util.WeekTerminsGenerator;
  */
 public class HandleRequestThread implements Runnable {
     private Socket socket;
-    private InputStream Input_Stream;
-    private OutputStream Output_Stream;
-    private ObjectOutputStream Object_Output_Stream;
     private ArrayList<HairDresserTermin> Reservations;
     private Controller controller;
-    private  BufferedReader in;
+
 
     public HandleRequestThread(Socket socket, ArrayList<HairDresserTermin> reservations, Controller controller) {
         this.socket = socket;
@@ -37,16 +34,22 @@ public class HandleRequestThread implements Runnable {
     public void run() {
         String user="";
         String request="";
+        InputStream inputStream=null;
+        OutputStream outputStream=null;
+        ObjectOutputStream Object_Output_Stream=null;
+        BufferedReader in = null;
         byte[] buf =new byte[64];
         try {
-            this.Input_Stream = socket.getInputStream();
-            this.Output_Stream = socket.getOutputStream();
-            this.Object_Output_Stream = new ObjectOutputStream(Output_Stream);
-            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            inputStream = socket.getInputStream();
+            outputStream = socket.getOutputStream();
+            Object_Output_Stream = new ObjectOutputStream(outputStream);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             user = in.readLine();
             request = in.readLine();
         }
-        catch(IOException e){e.printStackTrace();}
+        catch(IOException e){
+            e.printStackTrace();
+        }
         System.out.println("Host connected: " + user +" with req: " + request);
         if(request.equals(Operation.GETTERMINS.toString())) {
             try {
@@ -56,29 +59,46 @@ public class HandleRequestThread implements Runnable {
                 }
                 Object_Output_Stream.writeObject(bufer);
             }
-            catch(IOException e ){
+            catch(IOException e){
                 e.printStackTrace();
             }
         }
-        if(request.equals(Operation.REGISTER.toString())) {
+       else if(request.equals(Operation.REGISTER.toString())) {
             String reservation_time;
             try{
                reservation_time = in.readLine();
+               outputStream.flush();
                for (HairDresserTermin t : Reservations) {
                    if(DateUtil.format(t.TerminTime()).equals(reservation_time)){
-                       this.Output_Stream.write("RESERVATED".getBytes());
+                       outputStream.write(("TERMIN_BUSY" + "\n").getBytes());
+                       outputStream.flush();
                        return;
                    }
                }
+
+               outputStream.write(("RESERVATION_SUCCESS" + "\n").getBytes());
+               outputStream.flush();
                Reservations.add(new HairDresserTermin(DateUtil.parse(reservation_time)));
-               controller.init_columns();
+               if(controller != null){
+                   controller.init_columns();
+
+               }
            }
-           catch(IOException  e){
+           catch(IOException e){
                 System.out.println(":(" + in.toString());
-               e.printStackTrace();
+                e.printStackTrace();
            }
-        }
-        System.out.println("Koniec " + user + " " + request);
+       }
+       try {
+           in.close();
+           inputStream.close();
+           outputStream.close();
+           socket.close();
+       }
+       catch(IOException e){
+           e.printStackTrace();
+       }
+       System.out.println("Koniec " + user + " " + request);
     }
 }
 

@@ -1,6 +1,7 @@
 package Client;
 
 import Client.model.HairDresserTermin;
+import javafx.stage.Window;
 import util.DateUtil;
 import Client.view.Controller;
 import util.Operation;
@@ -57,7 +58,7 @@ public class StartClient extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException,InterruptedException {
-        ClientNetThread = new Thread(new ClientNetThread(ClientName,Reservations, Operation.GETTERMINS));
+        ClientNetThread = new Thread(new ClientNetThread(controller, ClientName,Reservations, Operation.GETTERMINS));
         ClientNetThread.start();
         ClientNetThread.join();
         this.primaryStage = primaryStage;
@@ -70,11 +71,13 @@ public class StartClient extends Application {
         if (ReservatedTermin != null) {
             return;}
         if (isReservated(ReservationTime)) {
+            controller.showAlert("Termin zajety", "Wybrano zajety termin",
+                    "Prosze wybrac inny termin wizyty");
             System.out.println("Reservated before: " + DateUtil.format(ReservationTime));
             return;
         }
 
-        Thread t =  new Thread(new ClientNetThread(ClientName,
+        Thread t =  new Thread(new ClientNetThread(controller, ClientName,
                 new HairDresserTermin(ReservationTime), Operation.REGISTER));
         t.start();
         t.join();
@@ -155,5 +158,9 @@ public class StartClient extends Application {
 
     public String getClientName() {
         return ClientName;
+    }
+
+    public Stage getPrimaryStage() {
+        return this.primaryStage;
     }
 }

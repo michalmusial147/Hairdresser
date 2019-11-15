@@ -16,6 +16,7 @@ public class ServerNet implements Runnable {
     public ServerNet(ArrayList<HairDresserTermin> reservations, Controller controller) throws Exception {
         serverSocket = new ServerSocket(PORT);
         this.Reservations = reservations;
+        this.controller = controller;
     }
 
     @Override

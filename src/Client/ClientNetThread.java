@@ -1,14 +1,12 @@
 package Client;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
 import Client.model.HairDresserTerminString;
 import Client.model.HairDresserTermin;
+import Client.view.Controller;
 import util.DateUtil;
 import util.Operation;
 
@@ -16,9 +14,9 @@ public class ClientNetThread implements Runnable {
 
     private Socket socket = new Socket();
     private String Client_name;
-
     private ArrayList<HairDresserTermin> Reservations;
     private Operation operationType;
+    private  Controller controller;
 
     public HairDresserTermin getReservationTime() {
         return ReservationTime;
@@ -26,18 +24,17 @@ public class ClientNetThread implements Runnable {
 
     private HairDresserTermin ReservationTime;
 
-
-
-
     private boolean registerOK;
 
-    public ClientNetThread(String client_name, ArrayList<HairDresserTermin> Reservations, Operation operationType) throws IOException {
+    public ClientNetThread(Controller controller, String client_name, ArrayList<HairDresserTermin> Reservations, Operation operationType) throws IOException {
+        this.controller = controller;
         this.Client_name = client_name;
         this.Reservations = Reservations;
         this.operationType = operationType;
     }
 
-    public ClientNetThread(String client_name, HairDresserTermin ReservationTime, Operation operationType) throws IOException {
+    public ClientNetThread(Controller controller, String client_name, HairDresserTermin ReservationTime, Operation operationType) throws IOException {
+        this.controller = controller;
         this.Client_name = client_name;
         this.ReservationTime = ReservationTime;
         this.operationType = operationType;
@@ -62,7 +59,7 @@ public class ClientNetThread implements Runnable {
             GetTermins(in);
         }
         else if(this.operationType == operationType.REGISTER) {
-            setRegisterOK(RegisterTermin(out));
+            setRegisterOK(RegisterTermin(out,in));
         }
 
         try{
@@ -93,9 +90,18 @@ public class ClientNetThread implements Runnable {
     }
 
 
-    private boolean RegisterTermin(OutputStream out){
+    private boolean RegisterTermin(OutputStream out, InputStream in){
         try{
-            out.write(DateUtil.format(getReservationTime().TerminTime()).getBytes());
+            out.write((DateUtil.format(getReservationTime().TerminTime()) +"\n").getBytes());
+            String response = new BufferedReader(new InputStreamReader(in)).readLine();
+            if(response.equals("RESERVATION_SUCCESS")){
+                return true;
+            }
+            else if(response.equals("TERMIN_BUSY")){
+                this.controller.showAlert("Termin zajety", "Wybrano zajety termin",
+                        "Prosze wybrac inny termin wizyty");
+                return false;
+            }
         }
         catch(IOException e){
             e.printStackTrace();

@@ -8,15 +8,12 @@ import Client.model.HairDresserTermin;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-import javafx.scene.control.SelectionMode;
 import util.DateUtil;
-import javafx.scene.control.TableCell;
 
 public class Controller {
     // Reference to the main application
@@ -152,7 +149,14 @@ public class Controller {
         TerminTable5.setItems(getDay(4, Termins));
         init_columns();
     }
-
+    public void showAlert(String title, String headerText, String contentText){
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.initOwner(StartClientMain.getPrimaryStage());
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        alert.showAndWait();
+    }
 
 
 }

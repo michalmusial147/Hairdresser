@@ -33,32 +33,13 @@ public class StartServer extends Application {
     public ArrayList<HairDresserTermin> getReservations() {
         return Reservations;
     }
-    public ObservableList<HairDresserTermin> generateTermins(){
-        ObservableList<HairDresserTermin> TerminsBuffer = FXCollections.observableArrayList();
-        LocalDateTime Time = LocalDateTime.now();
-        Time = Time.withHour(10);
-        Time = Time.withSecond(0);
-        Time = Time.withMinute(0);
-        while(Time.getDayOfWeek() == DayOfWeek.SUNDAY || Time.getDayOfWeek() == DayOfWeek.SATURDAY){
-            Time = Time.plusDays(1);
-        }
-        for (int day = 0; day < 5; day++) {
-            for (int i = 10; i < 18; i++) {
-                Time = Time.withHour(i);
-                TerminsBuffer.add(new HairDresserTermin(Time));
-            }
-            if (Time.getDayOfWeek() == DayOfWeek.FRIDAY) {
-                Time = Time.plusDays(3);
-            } else {
-                Time = Time.plusDays(1);
-            }
-        }
-        return TerminsBuffer;
-    }
 
     @Override
     public void start(Stage primaryStage) {
         Termins = new WeekTerminsGenerator().generateTermins();
+        this.primaryStage = primaryStage;
+        this.primaryStage.setTitle("HairDresserServer");
+        initLayout();
         try{
             Server = new Thread(new ServerNet(this.Reservations, this.controller));
             Server.start();
@@ -66,9 +47,6 @@ public class StartServer extends Application {
         catch(Exception e){
             e.printStackTrace();
         }
-        this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("HairDresserServer");
-        initLayout();
     }
 
     public void addReservation(LocalDateTime ReservationTime){
