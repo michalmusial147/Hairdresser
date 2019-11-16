@@ -1,7 +1,6 @@
 package Client;
 
 import Client.model.HairDresserTermin;
-import javafx.stage.Window;
 import util.DateUtil;
 import Client.view.Controller;
 import util.Operation;
@@ -16,21 +15,17 @@ import javafx.collections.*;
 
 
 import java.util.ArrayList;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 public class StartClient extends Application {
-
-
     private String ClientName = "Michu";
     private AnchorPane ClientLayout;
     private Stage primaryStage;
     private ObservableList<HairDresserTermin> Termins;
     private ArrayList<HairDresserTermin> Reservations = new ArrayList<>();
     private HairDresserTermin ReservatedTermin = null;
-    private Thread ClientNetThread ;
+
     private Controller controller;
 
     public void setReservations(ArrayList<HairDresserTermin> reservations) {
@@ -58,12 +53,16 @@ public class StartClient extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException,InterruptedException {
-        ClientNetThread = new Thread(new ClientNetThread(controller, ClientName,Reservations, Operation.GETTERMINS));
-        ClientNetThread.start();
-        ClientNetThread.join();
+        Thread GetTerminsThread;
+        ClientNetThread getTermins = new ClientNetThread(controller, ClientName,Reservations, Operation.GETTERMINS);
+        GetTerminsThread = new Thread(getTermins);
+        GetTerminsThread.start();
+        GetTerminsThread.join();
+        this.Reservations = getTermins.getReservations();
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("HairDresserClient");
         initLayout();
+
         setTermins(new WeekTerminsGenerator().generateTermins());
     }
 
@@ -76,22 +75,24 @@ public class StartClient extends Application {
             System.out.println("Reservated before: " + DateUtil.format(ReservationTime));
             return;
         }
-
-        Thread t =  new Thread(new ClientNetThread(controller, ClientName,
-                new HairDresserTermin(ReservationTime), Operation.REGISTER));
+        boolean result = false;
+        ClientNetThread c =  new ClientNetThread(controller, ClientName,
+                new HairDresserTermin(ReservationTime), Operation.REGISTER);
+        Thread t = new Thread(c);
         t.start();
         t.join();
-
-       // try {
-           // t.join();
-      //  } catch(InterruptedException e ){e.printStackTrace();
-      //  }
-
-
-        this.ReservatedTermin = new HairDresserTermin(ReservationTime);
-        this.Reservations.add(new HairDresserTermin(ReservationTime));
-        System.out.println("Reservation: " + DateUtil.format(ReservationTime));
-
+        result = c.isRegisterOK();
+        if (result == false) {
+            controller.showAlert("Termin zajety", "Wybrano zajety termin",
+                    "Prosze wybrac inny termin wizyty");
+            return;
+        }
+        else {
+            this.ReservatedTermin = new HairDresserTermin(ReservationTime);
+            this.Reservations.add(new HairDresserTermin(ReservationTime));
+            System.out.println("Reservation: " + DateUtil.format(ReservationTime));
+            return;
+        }
     }
 
     public void cancelReservation() {

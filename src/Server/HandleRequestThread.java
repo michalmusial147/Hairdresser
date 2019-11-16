@@ -20,9 +20,10 @@ import util.WeekTerminsGenerator;
  */
 public class HandleRequestThread implements Runnable {
     private Socket socket;
+
+
     private ArrayList<HairDresserTermin> Reservations;
     private Controller controller;
-
 
     public HandleRequestThread(Socket socket, ArrayList<HairDresserTermin> reservations, Controller controller) {
         this.socket = socket;
@@ -42,7 +43,6 @@ public class HandleRequestThread implements Runnable {
         try {
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
-            Object_Output_Stream = new ObjectOutputStream(outputStream);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             user = in.readLine();
             request = in.readLine();
@@ -57,6 +57,7 @@ public class HandleRequestThread implements Runnable {
                 for ( HairDresserTermin termin : Reservations) {
                     bufer.add(new HairDresserTerminString(termin));
                 }
+                Object_Output_Stream = new ObjectOutputStream(outputStream);
                 Object_Output_Stream.writeObject(bufer);
             }
             catch(IOException e){
@@ -100,5 +101,10 @@ public class HandleRequestThread implements Runnable {
        }
        System.out.println("Koniec " + user + " " + request);
     }
+
+    public ArrayList<HairDresserTermin> getReservations() {
+        return Reservations;
+    }
+
 }
 

@@ -14,18 +14,22 @@ public class ClientNetThread implements Runnable {
 
     private Socket socket = new Socket();
     private String Client_name;
+
+    public ArrayList<HairDresserTermin> getReservations() {
+        return Reservations;
+    }
+
     private ArrayList<HairDresserTermin> Reservations;
     private Operation operationType;
-    private  Controller controller;
+    private Controller controller;
+    private HairDresserTermin ReservationTime;
+    private boolean registerOK;
+    private final int serverListeningPort = 15456;
+    private final int clientListeningPort = 15456;
 
     public HairDresserTermin getReservationTime() {
         return ReservationTime;
     }
-
-    private HairDresserTermin ReservationTime;
-
-    private boolean registerOK;
-
     public ClientNetThread(Controller controller, String client_name, ArrayList<HairDresserTermin> Reservations, Operation operationType) throws IOException {
         this.controller = controller;
         this.Client_name = client_name;
@@ -33,13 +37,16 @@ public class ClientNetThread implements Runnable {
         this.operationType = operationType;
     }
 
-    public ClientNetThread(Controller controller, String client_name, HairDresserTermin ReservationTime, Operation operationType) throws IOException {
+    public ClientNetThread(Controller controller,
+                           String client_name,
+                           HairDresserTermin ReservationTime,
+                           Operation operationType
+                          ) throws IOException {
         this.controller = controller;
         this.Client_name = client_name;
         this.ReservationTime = ReservationTime;
         this.operationType = operationType;
     }
-
 
     @Override
     public void run() {
@@ -47,7 +54,7 @@ public class ClientNetThread implements Runnable {
         OutputStream out=null;
         try {
             // INIT CONNECTION
-            socket.connect(new InetSocketAddress("localhost", 15456), 1000);
+            socket.connect(new InetSocketAddress("localhost", serverListeningPort), 1000);
             out = socket.getOutputStream();
             in = socket.getInputStream();
             out.write((Client_name + "\n").getBytes());
@@ -61,7 +68,6 @@ public class ClientNetThread implements Runnable {
         else if(this.operationType == operationType.REGISTER) {
             setRegisterOK(RegisterTermin(out,in));
         }
-
         try{
             out.close();
             in.close();
@@ -79,7 +85,7 @@ public class ClientNetThread implements Runnable {
             for (HairDresserTerminString termin : bufer) {
                 resultofwrap.add(new HairDresserTermin(DateUtil.parse(termin.TerminTimeString())));
             }
-            Reservations = resultofwrap;
+            this.Reservations = resultofwrap;
 
         }
         catch(IOException | ClassNotFoundException e){
@@ -93,13 +99,11 @@ public class ClientNetThread implements Runnable {
     private boolean RegisterTermin(OutputStream out, InputStream in){
         try{
             out.write((DateUtil.format(getReservationTime().TerminTime()) +"\n").getBytes());
-            String response = new BufferedReader(new InputStreamReader(in)).readLine();
+            String response = new BufferedReader(new InputStreamReader(in, "UTF-8")).readLine();
             if(response.equals("RESERVATION_SUCCESS")){
                 return true;
             }
             else if(response.equals("TERMIN_BUSY")){
-                this.controller.showAlert("Termin zajety", "Wybrano zajety termin",
-                        "Prosze wybrac inny termin wizyty");
                 return false;
             }
         }
@@ -109,7 +113,6 @@ public class ClientNetThread implements Runnable {
         }
         return true;
     }
-
     public boolean isRegisterOK() {
         return registerOK;
     }

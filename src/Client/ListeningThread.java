@@ -1,23 +1,15 @@
-package Server;
-import Client.model.HairDresserTermin;
-import Server.view.Controller;
+package Client;
+
+
+import Server.HandleRequestThread;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 
-public class ServerNet implements Runnable {
-
+public class ListeningThread{
     public static int PORT = 15456;
     private ServerSocket serverSocket;
-    private ArrayList<HairDresserTermin> Reservations;
-    private Controller controller;
-    public ServerNet(ArrayList<HairDresserTermin> reservations, Controller controller) throws Exception {
-        serverSocket = new ServerSocket(PORT);
-        this.Reservations = reservations;
-        this.controller = controller;
-    }
 
     @Override
     public void run() {
@@ -32,5 +24,7 @@ public class ServerNet implements Runnable {
             e.printStackTrace();
         }
     }
+
+
 
 }

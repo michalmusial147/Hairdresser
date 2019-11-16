@@ -13,13 +13,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.collections.*;
 import util.WeekTerminsGenerator;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class StartServer extends Application {
-
+    private Map<InetSocketAddress, String> users = new HashMap<>();
     private AnchorPane ClientLayout;
     private Stage primaryStage;
     private ObservableList<HairDresserTermin> Termins;
