@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class ServerNet implements Runnable {
 
@@ -22,9 +23,10 @@ public class ServerNet implements Runnable {
     @Override
     public void run() {
         try {
+            HashSet set =  new HashSet<Integer>();
             while (true) {
                 Socket socket = serverSocket.accept();
-                HandleRequestThread handleThread = new HandleRequestThread(socket, Reservations, controller);
+                HandleRequestThread handleThread = new HandleRequestThread(socket, set, Reservations, controller);
                 new Thread(handleThread).start();
             }
         }

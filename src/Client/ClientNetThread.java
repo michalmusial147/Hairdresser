@@ -14,50 +14,47 @@ public class ClientNetThread implements Runnable {
 
     private Socket socket = new Socket();
     private String Client_name;
-
-    public ArrayList<HairDresserTermin> getReservations() {
-        return Reservations;
-    }
-
     private ArrayList<HairDresserTermin> Reservations;
     private Operation operationType;
     private Controller controller;
     private HairDresserTermin ReservationTime;
     private boolean registerOK;
-    private final int serverListeningPort = 15456;
-    private final int clientListeningPort = 15456;
+    private static int serverListeningPort = 15456;
+    private int clientListeningPort;
 
-    public HairDresserTermin getReservationTime() {
-        return ReservationTime;
-    }
-    public ClientNetThread(Controller controller, String client_name, ArrayList<HairDresserTermin> Reservations, Operation operationType) throws IOException {
+
+    public ClientNetThread(Controller controller, String client_name, ArrayList<HairDresserTermin> Reservations,
+                           Operation operationType, int listeningPort) throws IOException {
         this.controller = controller;
         this.Client_name = client_name;
         this.Reservations = Reservations;
         this.operationType = operationType;
+        this.clientListeningPort = listeningPort;
     }
 
     public ClientNetThread(Controller controller,
                            String client_name,
                            HairDresserTermin ReservationTime,
-                           Operation operationType
+                           Operation operationType,int listeningPort
                           ) throws IOException {
         this.controller = controller;
         this.Client_name = client_name;
         this.ReservationTime = ReservationTime;
         this.operationType = operationType;
+        this.clientListeningPort = listeningPort;
     }
 
     @Override
     public void run() {
-        InputStream in=null;
-        OutputStream out=null;
+        InputStream in = null;
+        OutputStream out = null;
         try {
             // INIT CONNECTION
             socket.connect(new InetSocketAddress("localhost", serverListeningPort), 1000);
             out = socket.getOutputStream();
             in = socket.getInputStream();
             out.write((Client_name + "\n").getBytes());
+            out.write((Integer.toString(clientListeningPort) + "\n").getBytes());
             out.write((operationType.toString()+"\n").getBytes());
         }
         catch(IOException e){ e.printStackTrace();
@@ -117,6 +114,12 @@ public class ClientNetThread implements Runnable {
         return registerOK;
     }
 
+    public ArrayList<HairDresserTermin> getReservations() {
+        return Reservations;
+    }
+    public HairDresserTermin getReservationTime() {
+        return ReservationTime;
+    }
     public void setRegisterOK(boolean registerOK) {
         this.registerOK = registerOK;
     }

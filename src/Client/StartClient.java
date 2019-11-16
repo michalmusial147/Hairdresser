@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class StartClient extends Application {
+    private int clientListeningPort = 15452;
     private String ClientName = "Michu";
     private AnchorPane ClientLayout;
     private Stage primaryStage;
@@ -54,7 +55,7 @@ public class StartClient extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException,InterruptedException {
         Thread GetTerminsThread;
-        ClientNetThread getTermins = new ClientNetThread(controller, ClientName,Reservations, Operation.GETTERMINS);
+        ClientNetThread getTermins = new ClientNetThread(controller, ClientName,Reservations, Operation.GETTERMINS, this.clientListeningPort);
         GetTerminsThread = new Thread(getTermins);
         GetTerminsThread.start();
         GetTerminsThread.join();
@@ -62,6 +63,8 @@ public class StartClient extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("HairDresserClient");
         initLayout();
+        new Thread(new ListeningThread(controller, ClientName,Reservations, Operation.GETTERMINS,
+                this.clientListeningPort)).start();
 
         setTermins(new WeekTerminsGenerator().generateTermins());
     }
@@ -77,7 +80,7 @@ public class StartClient extends Application {
         }
         boolean result = false;
         ClientNetThread c =  new ClientNetThread(controller, ClientName,
-                new HairDresserTermin(ReservationTime), Operation.REGISTER);
+                new HairDresserTermin(ReservationTime), Operation.REGISTER,this.clientListeningPort);
         Thread t = new Thread(c);
         t.start();
         t.join();

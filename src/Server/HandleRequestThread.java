@@ -4,37 +4,41 @@ import Client.model.HairDresserTermin;
 import Client.model.HairDresserTerminString;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import Server.view.Controller;
 import util.DateUtil;
 import util.Operation;
-import util.WeekTerminsGenerator;
 
 /**
  * Klasa reprezentuje watek serwera.
  */
 public class HandleRequestThread implements Runnable {
     private Socket socket;
-
-
+    private Set<Integer> ports;
     private ArrayList<HairDresserTermin> Reservations;
     private Controller controller;
-
-    public HandleRequestThread(Socket socket, ArrayList<HairDresserTermin> reservations, Controller controller) {
+    private int clientPort =15454;
+    private ReentrantLock lock;
+    public HandleRequestThread(Socket socket, Set<Integer> ports,
+                               ArrayList<HairDresserTermin> reservations, Controller controller) {
         this.socket = socket;
+        this.ports = ports;
         this.Reservations = reservations;
         this.controller = controller;
+        lock = new ReentrantLock();
     }
 
     @Override
     public void run() {
         String user="";
         String request="";
+        String newport="";
         InputStream inputStream=null;
         OutputStream outputStream=null;
         ObjectOutputStream Object_Output_Stream=null;
@@ -45,12 +49,16 @@ public class HandleRequestThread implements Runnable {
             outputStream = socket.getOutputStream();
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             user = in.readLine();
+            newport = in.readLine();
             request = in.readLine();
         }
         catch(IOException e){
             e.printStackTrace();
         }
         System.out.println("Host connected: " + user +" with req: " + request);
+        Integer portin = new Integer(newport);
+        lock.lock();
+        ports.add(portin);
         if(request.equals(Operation.GETTERMINS.toString())) {
             try {
                 List<HairDresserTerminString> bufer = new ArrayList<>();
@@ -80,6 +88,14 @@ public class HandleRequestThread implements Runnable {
                outputStream.write(("RESERVATION_SUCCESS" + "\n").getBytes());
                outputStream.flush();
                Reservations.add(new HairDresserTermin(DateUtil.parse(reservation_time)));
+               Socket ssocket = new Socket();
+               for(Integer i : ports){
+                   System.out.println(i.toString());
+
+                   if(!portin.equals(i)){
+                        ssocket.connect(new InetSocketAddress("localhost", i), 1000);
+                   }
+               }
                if(controller != null){
                    controller.init_columns();
 
@@ -99,6 +115,7 @@ public class HandleRequestThread implements Runnable {
        catch(IOException e){
            e.printStackTrace();
        }
+       lock.unlock();
        System.out.println("Koniec " + user + " " + request);
     }
 
