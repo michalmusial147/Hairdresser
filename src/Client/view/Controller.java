@@ -54,7 +54,6 @@ public class Controller {
 
     @FXML
     private void initialize() {
-       // Termins.addListener();
         init_columns();
         add_columns_listeners();
 
@@ -124,7 +123,12 @@ public class Controller {
    }
    @FXML
    private void handleCancelReservation() {
-        StartClientMain.cancelReservation();
+       if(StartClientMain.getReservatedTermin()==null){
+           showAlert("Blad","Brak rezerwacji",
+                   "Musisz najpierw zarezerwowac termin zeby go odwolac");
+           return;
+       }
+       StartClientMain.cancelReservation(this.StartClientMain.getReservatedTermin().TerminTime());
         init_columns();
    }
     public ObservableList<HairDresserTermin> getDay(int DayOfWeek, ObservableList<HairDresserTermin> TerminsToSplit) {

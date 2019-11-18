@@ -19,18 +19,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class StartClient extends Application {
-    private int clientListeningPort = 15452;
+    private int clientListeningPort = 15454;
     private String ClientName = "Michu";
     private AnchorPane ClientLayout;
     private Stage primaryStage;
     private ObservableList<HairDresserTermin> Termins;
     private ArrayList<HairDresserTermin> Reservations = new ArrayList<>();
+
+    public HairDresserTermin getReservatedTermin() {
+        return ReservatedTermin;
+    }
+
     private HairDresserTermin ReservatedTermin = null;
 
     private Controller controller;
 
     public void setReservations(ArrayList<HairDresserTermin> reservations) {
-        Reservations.addAll(reservations);
+        Reservations=reservations;
         if(controller!=null){
             controller.init_columns();
         }
@@ -61,7 +66,7 @@ public class StartClient extends Application {
         GetTerminsThread.join();
         this.Reservations = getTermins.getReservations();
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("HairDresserClient");
+        this.primaryStage.setTitle("HairDresserClient: " + (this.clientListeningPort));
         initLayout();
         new Thread(new ListeningThread(controller, ClientName,Reservations, Operation.GETTERMINS,
                 this.clientListeningPort)).start();
@@ -85,7 +90,7 @@ public class StartClient extends Application {
         t.start();
         t.join();
         result = c.isRegisterOK();
-        if (result == false) {
+        if (!result) {
             controller.showAlert("Termin zajety", "Wybrano zajety termin",
                     "Prosze wybrac inny termin wizyty");
             return;
@@ -98,18 +103,29 @@ public class StartClient extends Application {
         }
     }
 
-    public void cancelReservation() {
+    public void cancelReservation(LocalDateTime ReservationTime) {
         if (ReservatedTermin == null || Reservations==null) {
            return;
         }
-        if(Reservations.size()==0){
+        else if(Reservations.size()==0) {
             return;
         }
-        for (HairDresserTermin x : Reservations) {
-            if (DateUtil.format(x.TerminTime()).equals( DateUtil.format(ReservatedTermin.TerminTime()))) {
-                Reservations.remove(x);
-            }
+        else if(ReservationTime == null){
+            return;
         }
+        try {
+            ClientNetThread c = new ClientNetThread(controller, ClientName,
+                    new HairDresserTermin(ReservationTime), Operation.CANCEL, this.clientListeningPort);
+            Thread t = new Thread(c);
+            t.start();
+            t.join();
+
+            Reservations.removeIf(g->(DateUtil.format(g.TerminTime()).
+                    equals(DateUtil.format(this.ReservatedTermin.TerminTime()))));
+            this.ReservatedTermin = null;
+        }
+        catch(InterruptedException | IOException e){
+            e.printStackTrace();}
         ReservatedTermin = null;
     }
 

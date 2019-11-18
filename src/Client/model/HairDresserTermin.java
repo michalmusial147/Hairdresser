@@ -28,7 +28,7 @@ public class HairDresserTermin implements Serializable {
         return this.TerminTime.get().format(DateTimeFormatter.ISO_DATE_TIME);
     }
     public StringProperty TerminTimeStringProperty() {
-     //  System.out.println(new SimpleStringProperty(TerminTimeString()));
+
         return new SimpleStringProperty(TerminTimeString());
     }
 }

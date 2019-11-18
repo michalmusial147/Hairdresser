@@ -36,6 +36,7 @@ public class HandleRequestThread implements Runnable {
 
     @Override
     public void run() {
+        lock.lock();
         String user="";
         String request="";
         String newport="";
@@ -43,7 +44,7 @@ public class HandleRequestThread implements Runnable {
         OutputStream outputStream=null;
         ObjectOutputStream Object_Output_Stream=null;
         BufferedReader in = null;
-        byte[] buf =new byte[64];
+        byte[] buf = new byte[64];
         try {
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
@@ -57,7 +58,7 @@ public class HandleRequestThread implements Runnable {
         }
         System.out.println("Host connected: " + user +" with req: " + request);
         Integer portin = new Integer(newport);
-        lock.lock();
+
         ports.add(portin);
         if(request.equals(Operation.GETTERMINS.toString())) {
             try {
@@ -88,24 +89,25 @@ public class HandleRequestThread implements Runnable {
                outputStream.write(("RESERVATION_SUCCESS" + "\n").getBytes());
                outputStream.flush();
                Reservations.add(new HairDresserTermin(DateUtil.parse(reservation_time)));
-               Socket ssocket = new Socket();
-               for(Integer i : ports){
-                   System.out.println(i.toString());
-
-                   if(!portin.equals(i)){
-                        ssocket.connect(new InetSocketAddress("localhost", i), 1000);
-                   }
-               }
-               if(controller != null){
-                   controller.init_columns();
-
-               }
-           }
+               sendEcho(portin);
+            }
            catch(IOException e){
                 System.out.println(":(" + in.toString());
                 e.printStackTrace();
            }
        }
+        else if(request.equals(Operation.CANCEL.toString())) {
+            String reservation_time;
+            try{
+                reservation_time = in.readLine();
+                Reservations.removeIf(t->(DateUtil.format(t.TerminTime()).equals(reservation_time)));
+                sendEcho(portin);
+            }
+            catch(IOException e){
+                System.out.println(":(" + in.toString());
+                e.printStackTrace();
+            }
+        }
        try {
            in.close();
            inputStream.close();
@@ -117,6 +119,19 @@ public class HandleRequestThread implements Runnable {
        }
        lock.unlock();
        System.out.println("Koniec " + user + " " + request);
+    }
+
+    private void sendEcho(Integer portin) throws IOException {
+        Socket ssocket = new Socket();
+        for(Integer i : ports){
+            System.out.println("Echo:" + i.toString());
+            if(!portin.equals(i)){
+                ssocket.connect(new InetSocketAddress("localhost", i), 1000);
+            }
+        }
+        if(controller != null){
+            controller.init_columns();
+        }
     }
 
     public ArrayList<HairDresserTermin> getReservations() {

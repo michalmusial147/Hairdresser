@@ -52,6 +52,7 @@ public class ListeningThread implements Runnable{
                     GetTerminsThread.start();
                     GetTerminsThread.join();
                     controller.StartClientMain.setReservations(getTermins.getReservations());
+                    controller.init_columns();
                 }
                 catch(InterruptedException i){i.printStackTrace();}
             }

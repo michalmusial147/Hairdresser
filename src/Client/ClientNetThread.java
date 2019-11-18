@@ -3,6 +3,7 @@ import java.io.*;
 import java.net.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 import Client.model.HairDresserTerminString;
 import Client.model.HairDresserTermin;
@@ -21,7 +22,7 @@ public class ClientNetThread implements Runnable {
     private boolean registerOK;
     private static int serverListeningPort = 15456;
     private int clientListeningPort;
-
+    private ReentrantLock lock = new ReentrantLock();
 
     public ClientNetThread(Controller controller, String client_name, ArrayList<HairDresserTermin> Reservations,
                            Operation operationType, int listeningPort) throws IOException {
@@ -48,6 +49,7 @@ public class ClientNetThread implements Runnable {
     public void run() {
         InputStream in = null;
         OutputStream out = null;
+
         try {
             // INIT CONNECTION
             socket.connect(new InetSocketAddress("localhost", serverListeningPort), 1000);
@@ -59,20 +61,37 @@ public class ClientNetThread implements Runnable {
         }
         catch(IOException e){ e.printStackTrace();
         }
-        if (this.operationType == operationType.GETTERMINS) {
+        lock.lock();
+        if (this.operationType == Operation.GETTERMINS) {
             GetTermins(in);
         }
-        else if(this.operationType == operationType.REGISTER) {
+        else if(this.operationType == Operation.REGISTER) {
             setRegisterOK(RegisterTermin(out,in));
         }
+        else if(this.operationType == Operation.CANCEL){
+            cancelReservation(out);
+        }
         try{
+            assert out != null;
             out.close();
+            assert in != null;
             in.close();
             socket.close();
         }
         catch(IOException e){e.printStackTrace();
         }
+        lock.unlock();
     }
+
+    private void cancelReservation(OutputStream out) {
+        try{
+            out.write((DateUtil.format(getReservationTime().TerminTime()) +"\n").getBytes());
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
     private boolean GetTermins(InputStream in){
         try {
             ObjectInputStream Object_input_stream = new ObjectInputStream(in);
@@ -91,7 +110,6 @@ public class ClientNetThread implements Runnable {
         }
         return true;
     }
-
 
     private boolean RegisterTermin(OutputStream out, InputStream in){
         try{
