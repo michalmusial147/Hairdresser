@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class StartClient extends Application {
-    private int clientListeningPort = 15454;
+    private int clientListeningPort = 15435;
     private String ClientName = "Michu";
     private AnchorPane ClientLayout;
     private Stage primaryStage;

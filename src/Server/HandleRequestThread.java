@@ -23,7 +23,6 @@ public class HandleRequestThread implements Runnable {
     private Set<Integer> ports;
     private ArrayList<HairDresserTermin> Reservations;
     private Controller controller;
-    private int clientPort =15454;
     private ReentrantLock lock;
     public HandleRequestThread(Socket socket, Set<Integer> ports,
                                ArrayList<HairDresserTermin> reservations, Controller controller) {
@@ -122,11 +121,10 @@ public class HandleRequestThread implements Runnable {
     }
 
     private void sendEcho(Integer portin) throws IOException {
-        Socket ssocket = new Socket();
         for(Integer i : ports){
             System.out.println("Echo:" + i.toString());
             if(!portin.equals(i)){
-                ssocket.connect(new InetSocketAddress("localhost", i), 1000);
+               new Socket().connect(new InetSocketAddress("localhost", i), 1000);
             }
         }
         if(controller != null){
